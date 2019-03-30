@@ -68,16 +68,9 @@ function main() {
     // Get data
     const VALUE_RANGE = getValueRange(SHEET);
 
-    //Get data by 5 times
-    //var writeConts = 1;
     for ( var i = 0; i < VALUE_RANGE.length; i++ ) {
         
         Logger.log('writeConts: %s', writeConts);
-        /*
-        if ( writeConts >= 6 ) {
-            break;
-        }
-        */
        
         var value = VALUE_RANGE[i];
         if ( !value ) {
@@ -89,8 +82,6 @@ function main() {
         Logger.log('i: %s', i);
         Logger.log('value: %s', value);
         return;
-
-        //writeConts ++;
     }
 }
 
