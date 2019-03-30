@@ -39,24 +39,23 @@ function main(){
  * @param {string} AUTHOR
  * @param {string} DESCRIPTION
  */
- function postOnly(CHANNEL, USERID, TOPIC, TITLE, AUTHOR, DESCRIPTION, INCOMING_WEBHOOK_URL) {
- 
+function postOnly(CHANNEL, USERID, TOPIC, TITLE, AUTHOR, DESCRIPTION, INCOMING_WEBHOOK_URL) {
    var payload = {
-     "channel": "#" + CHANNEL,
-     "username": "New item added to reading list",
-     "icon_emoji": ":grin:",
-     "link_names": 1,
-     "attachments":[
-        {
-           "fallback": "This is an update from a Slackbot integrated into your organization. Your client chose not to show the attachment.",
-           "pretext": "<@" + USERID + "> added a new item to the reading list",
-           "mrkdwn_in": ["pretext"],
-           "color": "#76E9CD",
-           "fields":[
-              {
-                 "title":"Topic",
-                 "value": TOPIC,
-                 "short":false
+      "channel": "#" + CHANNEL,
+      "username": "New item added to reading list",
+      "icon_emoji": ":grin:",
+      "link_names": 1,
+      "attachments":[
+         {
+            "fallback": "This is an update from a Slackbot integrated into your organization. Your client chose not to show the attachment.",
+            "pretext": "<@" + USERID + "> added a new item to the reading list",
+            "mrkdwn_in": ["pretext"],
+            "color": "#76E9CD",
+            "fields":[
+               {
+                  "title":"Topic",
+                  "value": TOPIC,
+                  "short":false
               },
               {
                  "title":"Title",
@@ -80,8 +79,8 @@ function main(){
    Logger.log("payload: %s", payload)
  
    var options = {
-     'method': 'post',
-     'payload': JSON.stringify(payload)
+      'method': 'post',
+      'payload': JSON.stringify(payload)
    };
  
    return UrlFetchApp.fetch(INCOMING_WEBHOOK_URL,options);

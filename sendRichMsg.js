@@ -217,13 +217,13 @@ function getAssignees(value) {
 
 
 function getHeaders() {
-     // lang:jaを登録。これ以降はlangを指定しなくても自動的にjaが使用される。
-     Moment.moment.lang(
+    // lang:jaを登録。これ以降はlangを指定しなくても自動的にjaが使用される。
+    Moment.moment.lang(
         'ja', {
             weekdays: ["日曜日","月曜日","火曜日","水曜日","木曜日","金曜日","土曜日"],
             weekdaysShort: ["日","月","火","水","木","金","土"],
-         }
-     );
+        }
+    );
     var nowDate = Moment.moment().format('YYYY年MM月DD日 (ddd)');
     //var nowDate = Moment.moment().format('YYYY/MM/DD');
     var headers = "*【" + nowDate +"】This Week's Message*\n";
@@ -240,43 +240,43 @@ function getFotters(SS, FORM_URL) {
 
 
 function writeMessage(CHANNEL, text) {
-  var payload = {
-    "channel": "#" + CHANNEL,
-    "attachments":[
-       {
-          "fallback": "This is an update from a Slackbot integrated into your organization. Your client chose not to show the attachment.",
-          "pretext": text,
-          "mrkdwn_in": ["pretext"],
-       }
-    ]
-  };
-  return payload;
+    var payload = {
+      "channel": "#" + CHANNEL,
+        "attachments":[
+            {
+              "fallback": "This is an update from a Slackbot integrated into your organization. Your client chose not to show the attachment.",
+              "pretext": text,
+              "mrkdwn_in": ["pretext"],
+           }
+        ]
+    };
+    return payload;
 }
 
 function getAttText(quote, assignor) {
-  var att = quote + "\n";
-  att += assignor;
-  return att;
+    var att = quote + "\n";
+    att += assignor;
+    return att;
 }
 
 function writeRichMessage(CHANNEL, assignees, att) {
-  var payload = {
-    "channel": "#" + CHANNEL,
-    "attachments":[
-       {
-          "fallback": "This is an update from a Slackbot integrated into your organization. Your client chose not to show the attachment.",
-          "color": "#76E9CD",
-          "fields":[
-             {
-                "title": assignees,
-                "value": att,
-                "short":false
-             },
-          ]
-       }
-    ]
-  };
-  return payload;
+    var payload = {
+        "channel": "#" + CHANNEL,
+        "attachments":[
+            {
+                "fallback": "This is an update from a Slackbot integrated into your organization. Your client chose not to show the attachment.",
+                "color": "#76E9CD",
+                "fields":[
+                    {
+                        "title": assignees,
+                        "value": att,
+                        "short":false
+                    },
+                ]
+            }
+        ]
+    };
+    return payload;
 }
 
 
@@ -305,10 +305,9 @@ function writeRichMessage(CHANNEL, assignor, assignees, quote) {
 */
 
 function sendMessage(payload, INCOMING_WEBHOOK_URL){
-  var options = {
-    'method': 'post',
-    'payload': JSON.stringify(payload)
-  };
-
-  return UrlFetchApp.fetch(INCOMING_WEBHOOK_URL,options);
+    var options = {
+        'method': 'post',
+        'payload': JSON.stringify(payload)
+    };
+    return UrlFetchApp.fetch(INCOMING_WEBHOOK_URL,options);
 }
