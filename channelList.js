@@ -9,6 +9,12 @@ SlackのOutgoing WebHooksとGoogleAppsScriptで簡単な会話botを作ってみ
 https://qiita.com/pistaman/items/a542119ea28871960477
 */
 
+
+function doGet(e){
+    doPost(e);
+}
+
+
 function doPost(e) {
     const VERIFICATION_TOKEN = "xxxxxxxxxxxxxxx";
     var paramToken = e.parameter.token;
