@@ -1,96 +1,131 @@
 /*
-source: GoogleAppsScriptでGmailの下書きを、より簡単に作成する方法
-https://qiita.com/mkiyota/items/32d0fb2818bddf0d2e05 
+
+library key;
+moment.js
+MHMchiX6c1bwSqGM1PZiW_PxhMjh3Sh48
+
 */
 
-function main() {
-  
-    var mailTo = "to@example.com";
-    // var mailTo = " " 
-    // var mailCc = "cc@example.com"; 
-    
-    var mailTitle = "【週報　yyyy年MM月dd日】";
-     
-    var date = new Date();
-    
-    //金曜日にスクリプトを起動させる場合
-    var before4days = beforeNdays(date, 4);
-    var mailHeader = '各位 \n\nお疲れ様です。\nxxxxxxxxxxxxxxxxx\nMM月' + before4days + '日-dd日の週報です。\n\n';
-    
-    
-    // mailContent
-    // 
-    var thisWeek = '1.xxxxxxxxxxxx\n\n'
-    // 明日
-    var nextWeek = '2.xxxxxxxxxxxx\n\n'
-    var thisWeekOpinion = '3.xxxxxxxxxxxx\n\n'
-    var mailContent = thisWeek + nextWeek + thisWeekOpinion
-    var mailFooter = '来週もよろしくお願いします。\n'
-    var myAddress= " \n"+
+function writeDraft() {
+    /*-----------設定項目------------------*/
+    //みなさんのお名前、部署名など適宜変えてください。
+    const YOURNAME = "YOURNAME";
+    const DESCRIPTION = "DESCRIPTION";
+    const YOURTEAM = "YOURTEAM";
+    const MYADDRESS= " \n"+
                    " \n"+
                    "━━━━━━━━━━━━━━━━━━━━━━━━\n"+
-                   "xxxxxxxxxxxxxxxxxxxxxxxxxxx\n"+
-                   "xxxxxxxxxxxxxxxxxxxxxxxxxxx\n"+
-                   "xxxxxxxxxxxxxxxxxxxxxxxxxxx\n"+
-                   "xxxxxxxxxxxxxxxxxxxxxxxxxxx\\n"+
+                   "OURCOMPANYNAME\n"+
+                   "xxxxxxxxxxxxxxxxxxxxxxxxxx\n"+
+                   "xxxxxxxxxxxxxxxxxxxxxxxxxx\n"+
+                   "xxxxxxxxxxxxxxxxxxxxxxxxxx\n"+
                    "━━━━━━━━━━━━━━━━━━━━━━━━\n"+
                    "\n"+
                    " \n"
-   var mailBody =  mailHeader + mailContent + mailFooter + myAddress
-  
-    mailTitle = myDateFormat(date, mailTitle)
-    mailBody = myDateFormat(date, mailBody)
+                   
+    /*特定の日にちを週報の開始日としたい場合の変更箇所--------------
+    107行目と119行目のMoment.moment()の()に特定の日にちを
+    YYYY/MM/DDの書式で追記してください。
+    以下は2019年4月13日を特定の日にちとした場合のサンプルです。
+
+    107行目
+    var momentDateObj = Moment.moment("2019/04/13").add(number, 'days').format('M月D日(ddd)');
+
+    119行目
+    var currentDate = Moment.moment("2019/04/13").format('M月D日(ddd)');
+    */
+
+
+    /*-----------ここから下のスクリプトはコピペでOK------------------*/
+    //誤送信することの無いように架空のアドレスを記載。
+    //宛先を無しとした下書きは作成できない模様。
+    var mailTo = "to@example.com";
+    // var mailCc = "cc@example.com"; 
+
+    /*------------メール本文のヘッダーを生成-------------------
+    各位
+
+    お疲れ様です。
+    <DESCRIPTION>です。
+    <momentMonday> - <momentFriday>の実績を週報として送信いたします。
+
+    */
+    var momentMonday = momentToday();  
+    var momentFriday = momentDateObj(4);
+    var mailHeader = "各位 \n\nお疲れ様です。\n" + DESCRIPTION + "です。\n"+ momentMonday +" - "+ momentFriday + "の実績を週報として送信いたします。\n\n";
+
+    /*------------タイトルを生成-------------------*/
+    var ptn = /(\d+)月(\d+)日/;　// ex. 2019年4月17日(水)
+    momentFriday = momentFriday.match(ptn)[0];
+    var mailTitle = "【"+ YOURTEAM +"】週報_" + momentFriday + "_" + YOURNAME + "】";
+
+
+    /*------------メール本文を生成-------------------
+    1.今週の業務内容
+    ■aaaaaaaaaaaa
+    ・
+     －
+
+    ■その他
+    ・
+
+    2.来週の予定
+    ■aaaaaaaaaaaa
+    ・
+     －
+
+    ■その他
+    ・
+
+    3.その他所感等
+    ■aaaaaaaaaaaa
+    ・
+     －
+
+    ■その他
+    ・
+    */
+    var thisWeek = "1.今週の業務内容\n■aaaaaaaaaaaa\n・\n　－\n\n■その他\n・\n\n";
+    var nextWeek = ".来週の予定\n■aaaaaaaaaaaa\n・\n　－\n\n■その他\n・\n\n";
+    var thisWeekOpinion = "3.その他所感等\n■aaaaaaaaaaaa\n・\n　－\n\n■その他\n・\n\n";
+    var mailContent = thisWeek + nextWeek + thisWeekOpinion
+    var mailFooter = "以上、よろしくお願いします。\n";
+    var mailBody =  mailHeader + mailContent + mailFooter + MYADDRESS
     var mailArgs = {
-      // cc: mailCc,
-      mailBody: mailBody
+        // cc: mailCc,
+        mailBody: mailBody
     }
-    
+
     GmailApp.createDraft(mailTo, mailTitle, mailBody, mailArgs)
-    // GmailApp.createDraft(mailTitle, mailBody, mailArgs)
-      
-  }
-  
-  /*
-  テキストデータ「text」内の'yyyy', 'MM', 'dd', 'hh', 'mm', 'ss', 'aaa'の日付形式文字を、
-  日時データdateに該当する年月日時分秒曜日に変換する
-  */
-  function myDateFormat (date, text) {
-    var result = text
-    var timeZone = 'Asia/Tokyo'
-    // ’aaa’を曜日に変換
-    var yobi = ['日', '月', '火', '水', '木', '金', '土']
-    var rep = yobi[date.getDay()]
-    result = result.replace(/aaa/g, rep)
-  
-    // 'yyyy', 'MM', 'dd', 'hh', 'mm', 'ss'を年月日時分秒に変換
-    var f = ['yyyy', 'MM', 'dd', 'hh', 'mm', 'ss']
-    var i = 0
-    for (i in f) {
-      var reg = new RegExp(f[i] + '(.*?)', 'g')
-      rep = Utilities.formatDate(date, timeZone, f[i])
-      result = result.replace(reg, rep)
+} 
+
+
+
+
+
+function momentToday() {
+  const SS = SpreadsheetApp.getActiveSpreadsheet();
+  //const sheet = SS.getSheetByName('<SheetName e.g. sheet1>');
+
+  // Register lang:ja
+  Moment.moment.lang(
+    'ja', {
+      weekdays: ["日曜日","月曜日","火曜日","水曜日","木曜日","金曜日","土曜日"],
+      weekdaysShort: ["日","月","火","水","木","金","土"],
     }
-    return result
-    
-  }
-  
-  function beforeNdays(date, n){
-    var dateBeforeNdays = round(date.getDate()) - n;
-    //dateBeforeNdays = round(dateBeforeNdays);
-    
-    var _ptn = '/[0-9][0-9]';
-    var regExp = new RegExp(dateBeforeNdays);
-    if (_ptn.match(regExp)) {
-        return dateBeforeNdays;
-    } else {
-        return '0' + dateBeforeNdays;
-    }
-  }
-  
-  
-  //round "number of No."（e.g. 3.0　→ 3）
-  function round(n) {
-      n = Math.floor(n * 10) / 10;
-      Logger.log(n);
-      return n;
-  }
+  );
+  var currentDate = Moment.moment().format('M月D日(ddd)');
+  return currentDate;
+}
+
+function momentDateObj(number) {
+  // Register lang:ja
+  Moment.moment.lang(
+     'ja', {
+         weekdays: ["日曜日","月曜日","火曜日","水曜日","木曜日","金曜日","土曜日"],
+         weekdaysShort: ["日","月","火","水","木","金","土"],
+      }
+  );
+  var momentDateObj = Moment.moment().add(number, 'days').format('M月D日(ddd)');
+  return momentDateObj;
+}
