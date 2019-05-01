@@ -22,16 +22,19 @@ function doPost(e) {
       throw new Error('Invalid token');
     }
     var response = generateResponse(e);
-    return ContentService.createTextOutput(JSON.stringify(response)).setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(
+        JSON.stringify(response)
+    )
+    .setMimeType(
+        ContentService.MimeType.JSON
+    );
 }
   
   
 function generateResponse(e){
-    //const ID = "aaaaaaaaaaaaaaaaaaaaaaaa";
-    //const SHEET_NAME = "channels";
-    //const SHEET = setUp(ID, SHEET_NAME);
     const SHEET_NAME = "<Your Sheet Name>";
-    const SHEET = setUp(SHEET_NAME);
+    const SHEET = SpreadsheetApp.getActiveSpreadsheet()
+        .getSheetByName(SHEET_NAME);
     var valueRange = getValueRange(SHEET);
     //Logger.log(valueRange);
     var msgs = "<@" + e.parameter.user_id + ">\n\n";
@@ -45,13 +48,6 @@ function generateResponse(e){
     return response;
 }
 
-function setUp(SHEET_NAME){
-//function setUp(ID, SHEET_NAME){
-    //const SS = SpreadsheetApp.openById(ID);
-    const SS = SpreadsheetApp.getActiveSpreadsheet();
-    const SHEET = SS.getSheetByName(SHEET_NAME);
-    return SHEET;
-}
 
 function getValueRange(SHEET) {
     const OFFSET_ROW = 1;
