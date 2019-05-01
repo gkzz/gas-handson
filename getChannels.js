@@ -50,10 +50,10 @@ function getChannels() {
     }
     
     
-    function sort(SHEET, columnPosition, ascending){
+    function sort(SHEET, columnNumber, ascending){
         const OFFSET_ROW = 1;
         const OFFSET_COLUMN = 0;
         SHEET.getDataRange()
             .offset(OFFSET_ROW, OFFSET_COLUMN)
-            .sort([{column:columnPosition,ascending:ascending}]);
+            .sort([{column:columnNumber,ascending:ascending}]);
     }
