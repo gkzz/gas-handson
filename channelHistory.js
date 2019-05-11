@@ -1,37 +1,59 @@
 function main() {
     /*-------Args----------------------------------------------*/
-    // cf. channel url = "https://<YOUR_SLACK_TEAM>.slack.com/messages/<CHANNEL_ID>"";
-    const SLACK_TEAM = "xxxxxxxxxxxx"; //<YOUR_SLACK_TEAM>
-    const SLACK_TOKEN = "xoxp-xxxxxxxxxxxxxxxxxxxxxxxxxxx";
-    const CHANNEL_ID = "xxxxxxxxxxxx"; //<CHANNEL_ID>
+    const SLACK_TEAM = "xxxxxx";  //<YOUR_SLACK_TEAM>
+    const SLACK_TOKEN = "xoxp-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+    // cf. channel url = "https://<YOUR_SLACK_TEAM>.slack.com/messages/<YOUR_CHANNEL_ID>"";
+    const CHANNEL_ID = "CFTS3H5AQ"; //<YOUR_CHANNEL_ID>
     const BASE_URL = "https://" + SLACK_TEAM + ".slack.com/api/channels.history?";
     const SHEET_NAME = "sheet1"; //<SheetName>
     const COLUMN_NUMBER_TIMESTAMP = 1;
     const COLUMN_NUMBER_USER = 2;
     const COLUMN_NUMBER_TEXT = 3;
     const COLUMN_NUMBER_LINK = 4;
-    //取得期間
+  　//取得期間
     var period = 8;
     /*---------------------------------------------------------*/
     
     /*--------InitialSetUp--------------------------------------------------------------------------*/
-    const SS = SpreadsheetApp.getActiveSpreadsheet();
-    const SHEET = SS.getSheetByName(SHEET_NAME);
+    const SHEET = SpreadsheetApp.getActiveSpreadsheet()
+        .getSheetByName(SHEET_NAME);
     var lastrow = SHEET.getLastRow();
     /*---------------------------------------------------------*/
+  
+    /*
+    params = [
+      SLACK_TOKEN, CHANNEL_ID, BASE_URL, period
+    ];
+    for ( var i = 0; i < params.length; i++ ) {
+        Logger.log("typeof params[i]: %s", typeof params[i]);
+    }
+    return;
+    */
+    
     
     var messages = JSON.parse(
         getSlackLog(SLACK_TOKEN, CHANNEL_ID, BASE_URL, period)
-    ).messages.reverse();
+    )
+    .messages
+    .reverse();
     
     if ( !messages ) {
         return;
     }
-    //Logger.log(messages);
+    //Logger.log(typeof messages);
     //return;
     
-    setSlackLog(messages, SHEET, lastrow, 
-                COLUMN_NUMBER_TIMESTAMP, COLUMN_NUMBER_USER, COLUMN_NUMBER_TEXT, COLUMN_NUMBER_LINK);
+    /*
+    params = [
+      messages, SHEET, lastrow, COLUMN_NUMBER_TIMESTAMP, COLUMN_NUMBER_USER, COLUMN_NUMBER_TEXT, COLUMN_NUMBER_LINK
+    ];
+    for ( var i = 0; i < params.length; i++ ) {
+        Logger.log("typeof params[i]: %s", typeof params[i]);
+    }
+    return;
+    */
+  
+    setSlackLog(messages, SHEET, lastrow, COLUMN_NUMBER_TIMESTAMP, COLUMN_NUMBER_USER, COLUMN_NUMBER_TEXT, COLUMN_NUMBER_LINK);
 }
 
 
@@ -42,8 +64,7 @@ function main() {
 * @param {string} token
 * @param {string} id  
 * @param {string} url
-* @param {int} days
-* @return {string} requestUrl - url with payload 
+* @param {number} days 
 */
 function getSlackLog(token, id, url, days) {
     var payload = {
@@ -61,25 +82,29 @@ function getSlackLog(token, id, url, days) {
         params.push(key + '=' + payload[key]);
     }
     var requestUrl = url + params.join('&');
-    return UrlFetchApp.fetch(requestUrl);
+    return UrlFetchApp.fetch(requestUrl)
 }
 
 /**
 * setSlackLog Function
 *
 * properties in the objects/rows
-* @param {string} array - JSON.parse(getSlackLog(SLACK_TOKEN, CHANNEL_ID, REQUEST_URL)).messages.reverse();
-* @param {string} sheetObj - SHEET of Activaed SpreadsheetAppObj
-* @param {string} lastrow - last row of sheet
-* @param {string} columnNumberTs - 1
-* @param {string} columnNumberText - 2
-* @param {string} columnNumberLink - 3
+* @param {object} array            - JSON.parse(getSlackLog(SLACK_TOKEN, CHANNEL_ID, REQUEST_URL)).messages.reverse();
+* @param {object} sheetObj         - SHEET of Activaed SpreadsheetAppObj
+* @param {number} lastrow          - last row of sheet
+* @param {number} columnNumberTs   - 1
+* @param {number} columnNumberText - 2
+* @param {number} columnNumberLink - 3
 */
 function setSlackLog(array, sheetObj, lastrow, 
                     columnNumberTs, columnNumberUser, columnNumberText, columnNumberLink) {
     // Log messages on SpreadSheet
     for ( var i = 0; i < array.length; i++ ){
+        /*
         Logger.log("array[i].user: %s", array[i].user);
+        Logger.log(array[i].ts);
+        Logger.log(typeof true);
+        */
       
         // DateTime
         sheetObj.getRange(lastrow + i + 1, columnNumberTs)
@@ -111,12 +136,11 @@ function setSlackLog(array, sheetObj, lastrow,
 * getMomentDateTime Function
 *
 * properties in the objects/rows
-* @param {string} dateObj 
-* @param {string} isYear timestamp with year, or not
-* @return {string} 'YYYY/MM/DD(ddd) HH:mm:ss'
+* @param  {string}  unixtime                    - e.g. 1557197740.001300
+* @param  {boolean} isYear                      - timestamp with year, or not
+* @return {string}  'YYYY/MM/DD(ddd) HH:mm:ss'
 */
-function getMomentDateTime(dateObj, isYear) {
-    //Logger.log(obj);
+function getMomentDateTime(unixtime, isYear) {
     // Register lang:ja
     Moment.moment.lang(
       'ja', {
@@ -125,10 +149,12 @@ function getMomentDateTime(dateObj, isYear) {
       }
     );
     if ( isYear ) {
-        return Moment.moment(dateObj * 1000)
+        //isYear == true, YYYY有り
+        return Moment.moment(unixtime * 1000)
             .format('YYYY/MM/DD(ddd) HH:mm:ss');
     } else {
-        return Moment.moment(dateObj * 1000)
+        //YYYY無し
+        return Moment.moment(unixtime * 1000)
             .format('MM/DD(ddd) HH:mm:ss');
     }
     
