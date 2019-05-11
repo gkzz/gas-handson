@@ -10,6 +10,14 @@ function main() {
     const COLUMN_NUMBER_USER = 2;
     const COLUMN_NUMBER_TEXT = 3;
     const COLUMN_NUMBER_LINK = 4;
+
+    //スプレッドシートに書き出す投稿日時のフォーマット(年有り)
+    var isYear = true;
+    
+    //スプレッドシートに書き出す投稿日時のフォーマット(年無し)
+    //var isYear = false;
+    
+
   　//取得期間
     var period = 8;
     /*---------------------------------------------------------*/
@@ -53,7 +61,9 @@ function main() {
     return;
     */
   
-    setSlackLog(messages, SHEET, lastrow, COLUMN_NUMBER_TIMESTAMP, COLUMN_NUMBER_USER, COLUMN_NUMBER_TEXT, COLUMN_NUMBER_LINK);
+    setSlackLog(messages, SHEET, lastrow, 
+                COLUMN_NUMBER_TIMESTAMP, COLUMN_NUMBER_USER, COLUMN_NUMBER_TEXT, COLUMN_NUMBER_LINK,
+                timestampFormat, isYear);
 }
 
 
@@ -89,15 +99,19 @@ function getSlackLog(token, id, url, days) {
 * setSlackLog Function
 *
 * properties in the objects/rows
-* @param {object} array            - JSON.parse(getSlackLog(SLACK_TOKEN, CHANNEL_ID, REQUEST_URL)).messages.reverse();
-* @param {object} sheetObj         - SHEET of Activaed SpreadsheetAppObj
-* @param {number} lastrow          - last row of sheet
-* @param {number} columnNumberTs   - 1
-* @param {number} columnNumberText - 2
-* @param {number} columnNumberLink - 3
+* @param {object}  array            - JSON.parse(getSlackLog(SLACK_TOKEN, CHANNEL_ID, REQUEST_URL)).messages.reverse();
+* @param {object}  sheetObj         - SHEET of Activaed SpreadsheetAppObj
+* @param {number}  lastrow          - last row of sheet
+* @param {number}  columnNumberTs   - 1
+* @param {number}  columnNumberText - 2
+* @param {number}  columnNumberLink - 3 
+* @param {boolean} booleanValue     - true/false 
+*   if "booleanValue" is true, the format of timestamp is "YYYY/MM/DD(ddd) HH:mm:ss"
+*   if not, the format is "MM/DD(ddd) HH:mm:ss"
 */
 function setSlackLog(array, sheetObj, lastrow, 
-                    columnNumberTs, columnNumberUser, columnNumberText, columnNumberLink) {
+                    columnNumberTs, columnNumberUser, columnNumberText, 
+                    columnNumberLink, booleanValue) {
     // Log messages on SpreadSheet
     for ( var i = 0; i < array.length; i++ ){
         /*
@@ -108,7 +122,7 @@ function setSlackLog(array, sheetObj, lastrow,
       
         // DateTime
         sheetObj.getRange(lastrow + i + 1, columnNumberTs)
-            .setValue(getMomentDateTime(array[i].ts, true));
+            .setValue(getMomentDateTime(array[i].ts, booleanValue));
         // UserId
         sheetObj.getRange(lastrow + i + 1, columnNumberUser)
             .setValue(array[i].user);
@@ -137,10 +151,10 @@ function setSlackLog(array, sheetObj, lastrow,
 *
 * properties in the objects/rows
 * @param  {string}  unixtime                    - e.g. 1557197740.001300
-* @param  {boolean} isYear                      - timestamp with year, or not
-* @return {string}  'YYYY/MM/DD(ddd) HH:mm:ss'
+* @param  {boolean} booleanValue                - timestamp with year, or not
+* @return {string}  'YYYY/MM/DD(ddd) HH:mm:ss' or 'MM/DD(ddd) HH:mm:ss'
 */
-function getMomentDateTime(unixtime, isYear) {
+function getMomentDateTime(unixtime, booleanValue) {
     // Register lang:ja
     Moment.moment.lang(
       'ja', {
@@ -148,8 +162,8 @@ function getMomentDateTime(unixtime, isYear) {
         weekdaysShort: ["日","月","火","水","木","金","土"],
       }
     );
-    if ( isYear ) {
-        //isYear == true, YYYY有り
+    if ( booleanValue ) {
+        //booleanValue == true, YYYY有り
         return Moment.moment(unixtime * 1000)
             .format('YYYY/MM/DD(ddd) HH:mm:ss');
     } else {
